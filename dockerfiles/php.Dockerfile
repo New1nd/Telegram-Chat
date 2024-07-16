@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-WORKDIR /var/www/pro-traffic-group
+WORKDIR /var/www/projects
 
 #RUN apt update \
 #    && apt install postgresql-dev \
