@@ -59,5 +59,12 @@ services:
     entrypoint:
       - php
       - /var/www/project/artisan
+  npm:
+    image: node:20
+    working_dir: /var/www/project
+    entrypoint: ["npm"]
+    volumes:
+      - './src:/var/www/project'
+
 volumes:
   db_data: null
