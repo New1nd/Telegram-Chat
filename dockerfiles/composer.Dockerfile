@@ -1,5 +1,5 @@
 FROM composer:latest
 
-WORKDIR /var/www/pro-traffic-group
+WORKDIR /var/www/chat
 
 ENTRYPOINT ["composer", "--ignore-platform-reqs"]
