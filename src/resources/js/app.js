@@ -16,7 +16,10 @@ import { createApp } from 'vue';
 const app = createApp({});
 
 import ExampleComponent from './components/ExampleComponent.vue';
+import PrivateChat from './components/PrivateChat.vue';
+
 app.component('example-component', ExampleComponent);
+app.component('private-chat', PrivateChat);
 
 /**
  * The following block of code may be used to automatically register your
