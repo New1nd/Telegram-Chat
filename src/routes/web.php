@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Message\MessageController;
 use App\Models\Api\V1\Room\Room;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,6 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-
+Route::get('/getMessage/{room_id}', [MessageController::class, 'get'])->name('message-get');
 
 Route::get('/invite/{room_id}', [\App\Http\Controllers\Api\V1\Room\RoomController::class, 'inviteUser'])->name('inviteUser-room');
