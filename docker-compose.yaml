@@ -1,18 +1,11 @@
 services:
-  laravelapp:
-    container_name: laravelapp
-    build:
-      context: dockerfiles
-      dockerfile: laravel.Dockerfile
-    volumes:
-      - './src:/var/www/chat'
   nginx:
     image: nginx
     ports:
       - '80:80'
     volumes:
       - './nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro'
-      - './src:/var/www/chat'
+      - './src:/var/www/chat-tg'
     depends_on:
       - db
       - php
@@ -23,7 +16,7 @@ services:
       context: dockerfiles
       dockerfile: php.Dockerfile
     volumes:
-      - './src:/var/www/chat'
+      - './src:/var/www/chat-tg'
   db:
     container_name: postgres_laravel
     image: 'postgres:12'
@@ -57,22 +50,22 @@ services:
       context: dockerfiles
       dockerfile: composer.Dockerfile
     volumes:
-      - './src:/var/www/chat'
+      - './src:/var/www/chat-tg'
   artisan:
     build:
       context: dockerfiles
       dockerfile: php.Dockerfile
     volumes:
-      - './src:/var/www/chat'
+      - './src:/var/www/chat-tg'
     entrypoint:
       - php
-      - /var/www/chat/artisan
+      - /var/www/chat-tg/artisan
   npm:
     image: node:20
-    working_dir: /var/www/chat
+    working_dir: /var/www/chat-tg
     entrypoint: ["npm"]
     volumes:
-      - './src:/var/www/chat'
+      - './src:/var/www/chat-tg'
   redis:
     image: redis:latest
     command: redis-server --appendonly yes
