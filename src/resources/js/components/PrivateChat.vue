@@ -42,13 +42,7 @@ export default {
             textarea.scrollTop = textarea.scrollHeight;
         }, 500);
 
-        axios
-            .get('/getMessage/' + this.room.id)
-            .then(response => {
-                response.data.messages.forEach(item => {
-                    this.messages.push(item);
-                });
-            });
+        this.getMessages()
 
         this.channel
             .here((users) => {
@@ -63,7 +57,8 @@ export default {
             .listen('PrivateChat', ({data}) => {
                 console.log(data);
 
-                this.messages.push([data.name + ': ' + data.message]);
+                // this.messages.push([data.name + ': ' + data.message]);
+                this.getMessages();
                 this.isActive = false;
             })
             .listenForWhisper('typing', (e) => {
@@ -78,6 +73,15 @@ export default {
 
     },
     methods: {
+        getMessages() {
+            axios
+                .get('/getMessage/' + this.room.id)
+                .then(response => {
+                    response.data.messages.forEach(item => {
+                        this.messages.push(item);
+                    });
+                });
+        },
         sendMessage() {
             axios.post('/messages', {name: this.user.name, message: this.textMessage, room_id: this.room.id });
 
