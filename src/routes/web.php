@@ -1,6 +1,8 @@
 <?php
 
+use App\Events\PrivateChat;
 use App\Http\Controllers\Api\V1\Message\MessageController;
+use App\Models\Api\V1\Message\Message;
 use App\Models\Api\V1\Room\Room;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +11,13 @@ Route::get('/', function () {
 });
 
 Route::post('messages', function(Illuminate\Http\Request $request) {
-    App\Events\PrivateChat::dispatch($request->all());
+    $message = Message::create([
+        'room_id' => $request->input('room_id'),
+        'user_id' => auth()->id(),
+        'message' => $request->input('message'),
+    ]);
+
+    PrivateChat::dispatch($message);
 });
 
 Route::get('/room/{room}', function(Room $room) {

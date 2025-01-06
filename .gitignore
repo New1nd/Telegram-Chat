@@ -5,3 +5,13 @@
 db_data
 db_data/
 db_data/*
+
+.docker
+.docker/
+.docker/*
+
+pgadmin
+pgadmin/
+pgadmin/*
+
+.docker/redis/data/dump.rdb

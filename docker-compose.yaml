@@ -12,6 +12,8 @@ services:
       - composer
       - artisan
   php:
+    ports:
+      - '8080:8080'
     build:
       context: dockerfiles
       dockerfile: php.Dockerfile
@@ -35,6 +37,8 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=password
+#    volumes:
+#      - './pgadmin:/var/lib/pgadmin'
     depends_on:
       - db
 #  mysql:
@@ -73,6 +77,18 @@ services:
       - .docker/redis/data:/data
     ports:
       - 6379:6379
-
+#  reverb:
+#    build:
+#      context: dockerfiles
+#      dockerfile: reverb.Dockerfile
+#    container_name: reverb
+#    ports:
+#      - '8080:8080'
+#    volumes:
+#      - './src:/var/www/chat-tg'
+#    working_dir: /var/www/chat-tg
+#    depends_on:
+#      - php
+#      - nginx
 volumes:
   db_data: null

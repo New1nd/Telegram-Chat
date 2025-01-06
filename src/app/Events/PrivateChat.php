@@ -12,24 +12,15 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
-class PrivateChat
+class PrivateChat implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $message;
+
     public function __construct($data)
     {
-        $this->data = $data;
-
-        if (Auth::check()) {
-            $user = Auth::user()->id;
-
-            $message = new Message();
-            $message->fill([
-                'room_id' => $data['room_id'],
-                'user_id' => $user,
-                'message' => $data['body'],
-            ])->save();
-        }
+        $this->message = $data;
 
         $this->dontBroadcastToCurrentUser();
     }
@@ -41,6 +32,6 @@ class PrivateChat
      */
     public function broadcastOn()
     {
-        return new PresenceChannel('room.' . $this->data['room_id']);
+        return new PresenceChannel('room.' . $this->message['room_id']);
     }
 }
