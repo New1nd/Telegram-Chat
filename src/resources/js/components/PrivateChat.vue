@@ -77,9 +77,10 @@ export default {
             axios
                 .get('/getMessage/' + this.room.id)
                 .then(response => {
-                    response.data.messages.forEach(item => {
-                        this.messages.push(item);
-                    });
+                    this.messages = response.data.messages;
+                    // response.data.messages.forEach(item => {
+                    //
+                    // });
                 });
         },
         sendMessage() {
