@@ -179,7 +179,6 @@ export default {
     */
 }
 
-/* Каждый "пузырёк" сообщения */
 .message {
     display: block;
     max-width: 60%;
@@ -194,65 +193,62 @@ export default {
     padding: 5px;
 }
 
-/* Имя автора сообщения */
 .message-author {
     font-size: 0.9em;
     color: #666;
     margin-bottom: 4px;
 }
 
-/* Текст сообщения */
 .message-text {
     font-size: 1em;
     line-height: 1.4em;
 }
 
-/* Мои сообщения (справа) */
 .my-message {
     background-color: #cce5ff;
     margin-left: auto;
     text-align: right;
 }
 
-/* Сообщения собеседников (слева) */
 .other-message {
     background-color: #f8f9fa;
     margin-right: auto;
     text-align: left;
 }
 
-/* Список активных пользователей (справа) */
+.chat-window__body{
+    width: 70%;
+}
+
 .active-users {
     position: absolute;
     right: 0;
     top: 0;
-    bottom: 50px; /* оставим место под поле ввода */
-    width: 200px;
+    bottom: 50px;
+    width: 30%;
     border-left: 1px solid #ccc;
     padding: 10px;
     overflow-y: auto;
     background: #fff;
 }
 
-/* Управляющая панель внизу */
 .chat-controls {
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 200px; /* с учётом ширины .active-users */
+    //right: 200px; /* с учётом ширины .active-users */
     border-top: 1px solid #ccc;
     padding: 10px;
     background: #fff;
+    width: 100%;
 }
 
-/* Индикатор кто печатает */
 .typing-indicator {
     min-height: 20px;
     color: #999;
     font-style: italic;
 }
 
-/* Поле ввода сообщения */
 .chat-input {
     width: 100%;
     margin-top: 8px;
