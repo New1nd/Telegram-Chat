@@ -38,6 +38,11 @@ class Message extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function reactions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withPivot('reaction');
+    }
+
     public function room()
     {
         return $this->belongsTo(Room::class);

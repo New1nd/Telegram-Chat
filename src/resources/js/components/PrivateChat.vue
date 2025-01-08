@@ -27,13 +27,14 @@
                             </button>
                         </div>
 
-                        <!-- Отображение текущей реакции (если есть) -->
-                        <div class="current-reaction" v-if="msg.reaction">
-                            Текущая реакция:
-                            <span v-if="msg.reaction === 'like'">👍</span>
-                            <span v-else-if="msg.reaction === 'dislike'">👎</span>
-                            <span v-else-if="msg.reaction === 'heart'">❤️</span>
-                        </div>
+                        <ul class="reactions-list">
+                            <li v-for="(r, i) in msg.reactions" :key="i">
+                                {{ r.user_name }} →
+                                <span v-if="r.reaction === 'like'">👍</span>
+                                <span v-else-if="r.reaction === 'dislike'">👎</span>
+                                <span v-else-if="r.reaction === 'heart'">❤️</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -97,14 +98,11 @@ export default {
                 this.isActive = false;
             })
             .listen('ReactionMessage', (payload) => {
-                // payload может содержать данные об обновлённом сообщении (id, reaction, ...)
-                const { message_id, reaction } = payload;
-
-                // Находим сообщение в массиве
-                const msg = this.messages.find(m => m.id === message_id);
+                // payload = { messageId, roomId, reactions: [{user_id, user_name, reaction}, ...]}
+                // Находим сообщение и обновляем reactions
+                const msg = this.messages.find(m => m.id === payload.message_id);
                 if (msg) {
-                    // Обновляем реакцию локально
-                    msg.reaction = reaction;
+                    msg.reactions = payload.reactions;
                 }
             })
             .listenForWhisper('typing', (e) => {
@@ -116,7 +114,9 @@ export default {
             });
     },
     methods: {
-
+        countReactions(message, type) {
+            return message.reactions.filter(r => r.reaction === type).length;
+        },
         getMessages() {
             axios
                 .get('/getMessage/' + this.room.id)
@@ -171,18 +171,30 @@ export default {
                 name: this.user.name
             });
         },
-        // Установить реакцию
         setReaction(msg, reactionType) {
-            // Оправляем на сервер, чтобы обновить реакцию
             axios
                 .post('/messages/reaction', {
                     message_id: msg,
+                    user_id: this.user.id,
                     reaction: reactionType
                 })
                 .then(() => {
-                    // Локально обновляем, чтобы сразу увидеть,
-                    // а все остальные получат через событие ReactionUpdated
-                    msg.reaction = reactionType;
+                    // Можно локально поменять, если хотим мгновенно показать
+                    // (или можно дождаться только события ReactionUpdated)
+                    // Пример локального обновления:
+                    // 1. Найти реакцию текущего пользователя в msg.reactions
+                    const existingIndex = msg.reactions.findIndex(r => r.user_id === this.user.id);
+                    if (existingIndex !== -1) {
+                        // Обновляем
+                        msg.reactions[existingIndex].reaction = reactionType;
+                    } else {
+                        // Добавляем новую
+                        msg.reactions.push({
+                            user_id: this.user.id,
+                            user_name: this.user.name,
+                            reaction: reactionType
+                        });
+                    }
                 });
         }
     }

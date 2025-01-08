@@ -12,13 +12,13 @@ class ReactionMessage implements ShouldBroadcast
     use InteractsWithSockets;
 
     public $message_id;
-    public $reaction;
+    public $reactions;
     public $room_id;
 
-    public function __construct($messageId, $reaction, $roomId)
+    public function __construct($messageId, $reactions, $roomId)
     {
         $this->message_id = $messageId;
-        $this->reaction   = $reaction;
+        $this->reactions = $reactions;
         $this->room_id    = $roomId;
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Message;
 use App\Events\ReactionMessage;
 use App\Http\Controllers\Controller;
 use App\Models\Api\V1\Message\Message;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -21,11 +22,28 @@ class MessageController extends Controller
                 'id' => $message->id,
                 'name' => $message->user->name,
                 'message' => $message->message,
-                'reaction' => $message->reaction,
+                'reactions' => $message->reactions,
             ];
         }
 
-        return response()->json(['messages' => $arrayMessages]);
+        $messagesFormatted = $messages->map(function ($msg) {
+            return [
+                'id'       => $msg->id,
+                'room_id'  => $msg->room_id,
+                'name'     => $msg->user->name, // имя автора, если храните
+                'message'     => $msg->message,
+                // Собираем все реакции
+                'reactions' => $msg->reactions->map(function ($user) {
+                    return [
+                        'user_id'   => $user->id,
+                        'user_name' => $user->name,
+                        'reaction'  => $user->pivot->reaction,
+                    ];
+                })->values()
+            ];
+        });
+
+        return response()->json(['messages' => $messagesFormatted]);
     }
 
     /**
@@ -92,24 +110,54 @@ class MessageController extends Controller
         // Валидируем
         $data = $request->validate([
             'message_id' => 'required|integer',
+            'user_id' => 'required|integer',
             'reaction'   => 'nullable|string',
         ]);
 
         // Находим сообщение
         $message = Message::findOrFail($data['message_id']);
+        $message->load('user');
 
         // Обновляем реакцию
+//        if ($message->reaction === $data['reaction']){
+//            $message->reaction = null;
+//        } else {
+//            $message->reaction = $data['reaction'];
+//        }
 
-        if ($message->reaction === $data['reaction']){
-            $message->reaction = null;
-        } else {
-            $message->reaction = $data['reaction'];
-        }
+//        $message->save();
 
-        $message->save();
+        $user = User::find($data['user_id']);
+
+        $message->reactions()->syncWithoutDetaching([
+            $user->id => [
+                'reaction' => $data['reaction']
+            ]
+        ]);
+
+        // Собираем все актуальные реакции у этого сообщения
+        // (users, pivot.reaction)
+
+
+        $allReactions = $message->reactions->map(function ($u) use ($user, $message) {
+            return [
+                'user_id'   => $u->id,
+                'message_id' => $message->id,
+                'user_name' => $u->name,
+                'reactions'  => $u->pivot->reaction
+            ];
+        });
+
+        // Рассылаем событие ReactionUpdated
+        broadcast(new ReactionMessage(
+            $message->id,
+            $allReactions,
+            $message->room_id,
+        ))->toOthers();
+
 
         // Сбрасываем событие ReactionUpdated, чтобы все в комнате узнали
-        broadcast(new ReactionMessage($message->id, $message->reaction, $message->room_id))->toOthers();
+//        broadcast(new ReactionMessage($message->id, $message->reaction, $message->room_id))->toOthers();
 
         return response()->json([
             'status' => 'ok',
