@@ -2,19 +2,21 @@
     <div class="chat-container">
         <!-- Левая часть: окно с сообщениями -->
         <div class="chat-window" ref="chatWindow">
-            <div
-                class="message"
-                v-for="(msg, index) in messages"
-                :key="index"
-            >
-                <div class="message-body"
-                     :class="{
-                      'my-message': msg.name === user.name,
-                      'other-message': msg.name !== user.name
-                    }"
+            <div class="chat-window__body">
+                <div
+                    class="message"
+                    v-for="(msg, index) in messages"
+                    :key="index"
                 >
-                    <div class="message-author">{{ msg.name }}</div>
-                    <div class="message-text">{{ msg.message }}</div>
+                    <div class="message-body"
+                         :class="{
+                          'my-message': msg.name === user.name,
+                          'other-message': msg.name !== user.name
+                        }"
+                    >
+                        <div class="message-author">{{ msg.name }}</div>
+                        <div class="message-text">{{ msg.message }}</div>
+                    </div>
                 </div>
             </div>
         </div>
