@@ -6,13 +6,16 @@
                 class="message"
                 v-for="(msg, index) in messages"
                 :key="index"
-                :class="{
-          'my-message': msg.name === user.name,
-          'other-message': msg.name !== user.name
-        }"
             >
-                <div class="message-author">{{ msg.name }}</div>
-                <div class="message-text">{{ msg.text }}</div>
+                <div class="message-body"
+                     :class="{
+                      'my-message': msg.name === user.name,
+                      'other-message': msg.name !== user.name
+                    }"
+                >
+                    <div class="message-author">{{ msg.name }}</div>
+                    <div class="message-text">{{ msg.message }}</div>
+                </div>
             </div>
         </div>
 
@@ -46,6 +49,7 @@ export default {
     data() {
         return {
             messages: [],
+            name: '',
             textMessage: '',
             isActive: false,     // кто-то печатает
             typingTimer: null,   // таймер для сброса "печатает"
@@ -118,11 +122,16 @@ export default {
             // Добавляем сообщение локально, чтобы сразу отобразилось
             this.messages.push({
                 name: this.user.name,
-                text: this.textMessage
+                message: this.textMessage
             });
+
+            console.log(this.user.name);
+            console.log(this.textMessage);
 
             // Очищаем поле
             this.textMessage = '';
+
+            // this.getMessages()
 
             // Прокрутка вниз
             this.$nextTick(() => {
@@ -170,12 +179,17 @@ export default {
 
 /* Каждый "пузырёк" сообщения */
 .message {
+    display: block;
     max-width: 60%;
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 6px;
     clear: both;
-    display: inline-block;
+}
+
+.message-body{
+    border-radius: 10px;
+    padding: 5px;
 }
 
 /* Имя автора сообщения */

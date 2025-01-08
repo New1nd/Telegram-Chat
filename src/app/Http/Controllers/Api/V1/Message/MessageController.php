@@ -16,7 +16,7 @@ class MessageController extends Controller
         $arrayMessages = [];
 
         foreach ($messages as $message){
-            $arrayMessages[] = $message->user->name . ': ' . $message->message;
+            $arrayMessages[] = ['name' => $message->user->name, 'message' => $message->message];
         }
 
         return response()->json(['messages' => $arrayMessages]);
