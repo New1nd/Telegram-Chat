@@ -30,9 +30,9 @@
                         <ul class="reactions-list">
                             <li v-for="(r, i) in msg.reactions" :key="i">
                                 {{ r.user_name }} →
-                                <span v-if="r.reaction === 'like'">Лайк</span>
-                                <span v-else-if="r.reaction === 'dislike'">Дизлайк</span>
-                                <span v-else-if="r.reaction === 'heart'">Сердешко</span>
+                                <span v-if="r.reaction === 'like'">👍</span>
+                                <span v-else-if="r.reaction === 'dislike'">👎</span>
+                                <span v-else-if="r.reaction === 'heart'">❤️</span>
                             </li>
                         </ul>
                     </div>
@@ -102,6 +102,8 @@ export default {
                 // Находим сообщение и обновляем reactions
                 const msg = this.messages.find(m => m.id === payload.message_id);
                 if (msg) {
+                    console.log(payload);
+
                     msg.reactions = payload.reactions;
                 }
             })

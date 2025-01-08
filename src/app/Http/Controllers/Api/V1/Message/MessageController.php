@@ -147,7 +147,7 @@ class MessageController extends Controller
                 'user_id'   => $u->id,
                 'message_id' => $message->id,
                 'user_name' => $u->name,
-                'reactions'  => $u->pivot->reaction
+                'reaction'  => $u->pivot->reaction
             ];
         });
 
