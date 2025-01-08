@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-WORKDIR /var/www/chat
+WORKDIR /var/www/chat-tg
 
 #RUN apt update \
 #    && apt install postgresql-dev \
@@ -13,7 +13,6 @@ RUN apt-get update \
 
 RUN docker-php-ext-install pcntl
 RUN docker-php-ext-configure pcntl --enable-pcntl
-CMD php artisan reverb:install && php artisan reverb:start
 
 # Установите Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

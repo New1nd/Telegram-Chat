@@ -9,3 +9,9 @@ db_data/*
 .docker
 .docker/
 .docker/*
+
+pgadmin
+pgadmin/
+pgadmin/*
+
+.docker/redis/data/dump.rdb

@@ -10,7 +10,7 @@
             </div>
             <div class="col-sm-4">
                 <ul>
-                    <li v-for="user in activeUsers">{{ user }}</li>
+                    <li v-for="user in activeUsers">{{ user.name }}</li>
                 </ul>
             </div>
         </div>
@@ -42,13 +42,7 @@ export default {
             textarea.scrollTop = textarea.scrollHeight;
         }, 500);
 
-        axios
-            .get('/getMessage/' + this.room.id)
-            .then(response => {
-                response.data.messages.forEach(item => {
-                    this.messages.push(item);
-                });
-            });
+        this.getMessages()
 
         this.channel
             .here((users) => {
@@ -61,7 +55,10 @@ export default {
                 this.activeUsers.splice(this.activeUsers.indexOf(user), 1);
             })
             .listen('PrivateChat', ({data}) => {
-                this.messages.push([data.name + ': ' + data.body]);
+                console.log(data);
+
+                // this.messages.push([data.name + ': ' + data.message]);
+                this.getMessages();
                 this.isActive = false;
             })
             .listenForWhisper('typing', (e) => {
@@ -76,8 +73,18 @@ export default {
 
     },
     methods: {
+        getMessages() {
+            axios
+                .get('/getMessage/' + this.room.id)
+                .then(response => {
+                    this.messages = response.data.messages;
+                    // response.data.messages.forEach(item => {
+                    //
+                    // });
+                });
+        },
         sendMessage() {
-            axios.post('/messages', {name: this.user.name, body: this.textMessage, room_id: this.room.id });
+            axios.post('/messages', {name: this.user.name, message: this.textMessage, room_id: this.room.id });
 
             this.messages.push(this.user.name + ': ' + this.textMessage);
 
