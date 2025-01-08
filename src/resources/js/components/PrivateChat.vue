@@ -210,7 +210,7 @@ export default {
     flex-direction: column;
     width: 100%;
     max-width: 1200px;
-    height: 600px;      /* фиксированная высота для примера */
+    height: 100px;      /* фиксированная высота для примера */
     margin: 0 auto;
     border: 1px solid #ccc;
     position: relative;
