@@ -99,7 +99,13 @@ class MessageController extends Controller
         $message = Message::findOrFail($data['message_id']);
 
         // Обновляем реакцию
-        $message->reaction = $data['reaction'];
+
+        if ($message->reaction === $data['reaction']){
+            $message->reaction = null;
+        } else {
+            $message->reaction = $data['reaction'];
+        }
+
         $message->save();
 
         // Сбрасываем событие ReactionUpdated, чтобы все в комнате узнали
