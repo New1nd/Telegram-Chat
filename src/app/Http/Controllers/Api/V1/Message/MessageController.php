@@ -118,26 +118,29 @@ class MessageController extends Controller
         $message = Message::findOrFail($data['message_id']);
         $message->load('user');
 
-        // Обновляем реакцию
-//        if ($message->reaction === $data['reaction']){
-//            $message->reaction = null;
-//        } else {
-//            $message->reaction = $data['reaction'];
-//        }
-
-//        $message->save();
-
         $user = User::find($data['user_id']);
 
-        $message->reactions()->syncWithoutDetaching([
-            $user->id => [
-                'reaction' => $data['reaction']
-            ]
-        ]);
+        $existing = $message->reactions()
+            ->where('user_id', $user->id)
+            ->first();
 
-        // Собираем все актуальные реакции у этого сообщения
-        // (users, pivot.reaction)
+        if ($existing) {
+            // Смотрим, совпадает ли текущая реакция c переданной
+            $currentReaction = $existing->pivot->reaction;
 
+            if ($currentReaction === $data['reaction']) {
+                // Нажали ту же реакцию -> убираем реакцию (detach)
+                $message->reactions()->detach($user->id);
+            } else {
+                // Ставим новую реакцию (update pivot)
+                $message->reactions()
+                    ->updateExistingPivot($user->id, ['reaction' => $data['reaction']]);
+            }
+        } else {
+            // Ещё нет реакции, просто attach
+            $message->reactions()
+                ->attach($user->id, ['reaction' => $data['reaction']]);
+        }
 
         $allReactions = $message->reactions->map(function ($u) use ($user, $message) {
             return [
@@ -154,10 +157,6 @@ class MessageController extends Controller
             $allReactions,
             $message->room_id,
         ))->toOthers();
-
-
-        // Сбрасываем событие ReactionUpdated, чтобы все в комнате узнали
-//        broadcast(new ReactionMessage($message->id, $message->reaction, $message->room_id))->toOthers();
 
         return response()->json([
             'status' => 'ok',
