@@ -30,4 +30,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('/getMessage/{room_id}', [MessageController::class, 'get'])->name('message-get');
 
+Route::post('/messages/reaction', [MessageController::class, 'setReaction']);
+
 Route::get('/invite/{room_id}', [\App\Http\Controllers\Api\V1\Room\RoomController::class, 'inviteUser'])->name('inviteUser-room');

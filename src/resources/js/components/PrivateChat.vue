@@ -1,6 +1,5 @@
 <template>
     <div class="chat-container">
-        <!-- Левая часть: окно с сообщениями -->
         <div class="chat-window" ref="chatWindow">
             <div class="chat-window__body">
                 <div
@@ -16,19 +15,36 @@
                     >
                         <div class="message-author">{{ msg.name }}</div>
                         <div class="message-text">{{ msg.message }}</div>
+                        <div class="reaction-buttons">
+                            <button @click="setReaction(msg.id, 'like')">
+                                👍
+                            </button>
+                            <button @click="setReaction(msg.id, 'dislike')">
+                                👎
+                            </button>
+                            <button @click="setReaction(msg.id, 'heart')">
+                                ❤️
+                            </button>
+                        </div>
+
+                        <!-- Отображение текущей реакции (если есть) -->
+                        <div class="current-reaction" v-if="msg.reaction">
+                            Текущая реакция:
+                            <span v-if="msg.reaction === 'like'">👍</span>
+                            <span v-else-if="msg.reaction === 'dislike'">👎</span>
+                            <span v-else-if="msg.reaction === 'heart'">❤️</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Правая часть: список активных пользователей -->
         <div class="active-users">
             <ul>
                 <li v-for="(u, i) in activeUsers" :key="i">{{ u.name }}</li>
             </ul>
         </div>
 
-        <!-- Нижняя часть: поле ввода и индикатор печати -->
         <div class="chat-controls">
             <div class="typing-indicator">
                 <span v-if="isActive">{{ isActive.name }} набирает сообщение...</span>
@@ -53,22 +69,19 @@ export default {
             messages: [],
             name: '',
             textMessage: '',
-            isActive: false,     // кто-то печатает
-            typingTimer: null,   // таймер для сброса "печатает"
-            activeUsers: []      // список онлайн
+            isActive: false,
+            typingTimer: null,
+            activeUsers: []
         }
     },
     computed: {
         channel() {
-            // Используем Echo.join, чтобы слушать события в комнате
             return Echo.join('room.' + this.room.id);
         }
     },
     mounted() {
-        // Получаем историю сообщений
         this.getMessages();
 
-        // Подключаемся к каналу
         this.channel
             .here((users) => {
                 this.activeUsers = users;
@@ -79,12 +92,21 @@ export default {
             .leaving((user) => {
                 this.activeUsers.splice(this.activeUsers.indexOf(user), 1);
             })
-            // Событие PrivateChat - новые сообщения
             .listen('PrivateChat', ({ data }) => {
                 this.getMessages();
                 this.isActive = false;
             })
-            // Событие whisper 'typing' - кто-то печатает
+            .listen('ReactionMessage', (payload) => {
+                // payload может содержать данные об обновлённом сообщении (id, reaction, ...)
+                const { message_id, reaction } = payload;
+
+                // Находим сообщение в массиве
+                const msg = this.messages.find(m => m.id === message_id);
+                if (msg) {
+                    // Обновляем реакцию локально
+                    msg.reaction = reaction;
+                }
+            })
             .listenForWhisper('typing', (e) => {
                 this.isActive = e;
                 if (this.typingTimer) clearTimeout(this.typingTimer);
@@ -94,7 +116,7 @@ export default {
             });
     },
     methods: {
-        // Получить сообщения с сервера
+
         getMessages() {
             axios
                 .get('/getMessage/' + this.room.id)
@@ -102,7 +124,7 @@ export default {
                     // Предположим, что response.data.messages - это массив объектов { name, text }
                     this.messages = response.data.messages || [];
 
-                    // Прокрутка в самый низ после обновления
+
                     this.$nextTick(() => {
                         const chatWindow = this.$refs.chatWindow;
                         if (chatWindow) {
@@ -148,6 +170,20 @@ export default {
             this.channel.whisper('typing', {
                 name: this.user.name
             });
+        },
+        // Установить реакцию
+        setReaction(msg, reactionType) {
+            // Оправляем на сервер, чтобы обновить реакцию
+            axios
+                .post('/messages/reaction', {
+                    message_id: msg,
+                    reaction: reactionType
+                })
+                .then(() => {
+                    // Локально обновляем, чтобы сразу увидеть,
+                    // а все остальные получат через событие ReactionUpdated
+                    msg.reaction = reactionType;
+                });
         }
     }
 }
@@ -208,12 +244,18 @@ export default {
     background-color: #cce5ff;
     margin-left: auto;
     text-align: right;
+    padding-right: 10px;
+    display: inline-block;
+    float: right;
 }
 
 .other-message {
     background-color: #efefef;
     margin-right: auto;
     text-align: left;
+    padding-left: 10px;
+    display: inline-block;
+    float: left;
 }
 
 .chat-window__body{
@@ -252,6 +294,28 @@ export default {
 .chat-input {
     width: 100%;
     margin-top: 8px;
+}
+
+/* Кнопки реакций */
+.reaction-buttons {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 4px;
+}
+
+.reaction-buttons button {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 16px;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+/* Текущая реакция */
+.current-reaction {
+    font-size: 14px;
+    color: #555;
 }
 </style>
 
