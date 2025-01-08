@@ -30,9 +30,9 @@
                         <ul class="reactions-list">
                             <li v-for="(r, i) in msg.reactions" :key="i">
                                 {{ r.user_name }} →
-                                <span v-if="r.reaction === 'like'">👍</span>
-                                <span v-else-if="r.reaction === 'dislike'">👎</span>
-                                <span v-else-if="r.reaction === 'heart'">❤️</span>
+                                <span v-if="r.reaction === 'like'">Лайк</span>
+                                <span v-else-if="r.reaction === 'dislike'">Дизлайк</span>
+                                <span v-else-if="r.reaction === 'heart'">Сердешко</span>
                             </li>
                         </ul>
                     </div>
